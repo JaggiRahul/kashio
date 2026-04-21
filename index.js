@@ -5,7 +5,7 @@ const { Pool } = require("pg");
 
 const app = express();
 app.use(express.json());
-
+console.log("DB URL:", process.env.DATABASE_URL);
 // ✅ safer DB config
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
