@@ -29,16 +29,6 @@ app.get("/test-db", async (req, res) => {
   }
 });
 
-// ✅ users route
-app.get("/users", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM users");
-    res.json(result.rows);
-  } catch (err) {
-    console.error("USERS ERROR:", err);
-    res.status(500).send("Users error: " + err.message);
-  }
-});
 
 // --- JWT Middleware ---
 const authenticateJWT = (req, res, next) => {
@@ -149,6 +139,17 @@ app.get("/profile", authenticateJWT, async (req, res) => {
     res.json(userResult.rows[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ users route (protected)
+app.get("/users", authenticateJWT, async (req, res) => {
+  try {
+    const result = await pool.query("SELECT id, phone, name, email, address, is_married, is_indian, allow_messages, is_verified, created_at FROM users");
+    res.json(result.rows);
+  } catch (err) {
+    console.error("USERS ERROR:", err);
+    res.status(500).send("Users error: " + err.message);
   }
 });
 
