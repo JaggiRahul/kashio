@@ -145,7 +145,18 @@ app.get("/profile", authenticateJWT, async (req, res) => {
 // ✅ users route (protected)
 app.get("/users", authenticateJWT, async (req, res) => {
   try {
-    const result = await pool.query("SELECT id, phone, name, email, address, is_married, is_indian, allow_messages, is_verified, created_at FROM users");
+    // Check if phone is provided as ?phone=123 or ?123
+    const phoneParam = req.query.phone || Object.keys(req.query)[0];
+    
+    let query = "SELECT id, phone, name, email, address, is_married, is_indian, allow_messages, is_verified, created_at FROM users";
+    let params = [];
+    
+    if (phoneParam) {
+      query += " WHERE phone = $1";
+      params.push(phoneParam);
+    }
+    
+    const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (err) {
     console.error("USERS ERROR:", err);
